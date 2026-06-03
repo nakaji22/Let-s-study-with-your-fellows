@@ -1,0 +1,27 @@
+spring:
+  # DBへのアクセス設定.
+  datasource:
+    url: jdbc:h2:file:./data/tkgstudysupport
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  # SQLをターミナルに表示する設定.
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  # ブラウザからH2Databaseの中身を確認できる画面を有効化.
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  # Thymeleaf(JavaのSpring BootアプリでHTML画面を作るためのテンプレートエンジン)のキャッシュを無効化. 古い画面が表示されにくい.
+  thymeleaf:
+    cache: false
+# Hibernate(Javaのクラスとデータベースのテーブルを対応付けるための仕組み)が発行するSQLをログに表示.
+logging:
+  level:
+    org.hibernate.SQL: debug

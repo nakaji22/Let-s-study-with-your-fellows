@@ -1,3 +1,12 @@
 spring:
   application:
-    name: demo
+    name: TKG_StudySupport
+  # 開発環境(application-dev.yaml)と本番環境(application-prod.yaml)を分ける.
+  profiles:
+    active: dev
+
+  jpa:
+    open-in-view: false
+# 講師用コードを環境変数から読み込むため、環境変数名だけ定義する.
+app:
+  owner-registration-code-hash: ${OWNER_REGISTRATION_CODE_HASH}
