@@ -89,6 +89,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
+		<!-- パスワードのハッシュ化 -->
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.15</version> <!-- またはそれ以降の最新バージョン -->
+		</dependency>
 	</dependencies>
 
 	<build>
