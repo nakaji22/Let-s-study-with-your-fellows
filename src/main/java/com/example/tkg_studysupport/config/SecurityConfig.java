@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+/** パスワードのハッシュ化用クラス。 */
+/* 設定クラスの宣言. */
 @Configuration
 public class SecurityConfig {
     /* このメソッドが返すインスタンスをSpringに管理させる */

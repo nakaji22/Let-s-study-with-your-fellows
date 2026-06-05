@@ -23,7 +23,7 @@ public class OwnerSignupForm {
 
     /** 確認用パスワード。DBには保存しない。 */
     @NotBlank(message = "確認用パスワードを入力してください。")
-    private String passwordComfirmation;
+    private String passwordConfirmation;
 
     /** 表示名。 */
     @NotBlank(message = "ユーザー名を入力してください。")
@@ -44,8 +44,8 @@ public class OwnerSignupForm {
         return this.password;
     }
 
-    public String getPasswordComfirmation(){
-        return this.passwordComfirmation;
+    public String getPasswordConfirmation(){
+        return this.passwordConfirmation;
     }
 
     public String getDisplayName(){
@@ -65,8 +65,8 @@ public class OwnerSignupForm {
         this.password = password;
     }
 
-    public void setPasswordComfimation(String passwordComfirmation){
-        this.passwordComfirmation = passwordComfirmation;
+    public void setPasswordComfimation(String passwordConfirmation){
+        this.passwordConfirmation = passwordConfirmation;
     }
 
     public void setDisplayName(String displayName){

@@ -10,6 +10,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.FetchType;
 import jakarta.validation.constraints.NotNull;
 
+/**
+ * 講師固有のプロフィール情報を表すEntity。
+ * 対応するAccountを保持する。
+ */
 @Entity
 @Table(name = "owner_profiles")
 public class OwnerProfile {
@@ -19,7 +23,7 @@ public class OwnerProfile {
     protected OwnerProfile(){}
 
     /** アカウント登録用コンストラクタ */
-    public OwnerProfile(Account account, Grade grade){
+    public OwnerProfile(Account account){
         this.account = account;
     }
 
