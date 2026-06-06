@@ -66,7 +66,7 @@ public class StudentSignupForm {
         this.password = password;
     }
 
-    public void setPasswordComfimation(String passwordConfirmation){
+    public void setPasswordConfirmation(String passwordConfirmation){
         this.passwordConfirmation = passwordConfirmation;
     }
 
@@ -74,7 +74,7 @@ public class StudentSignupForm {
         this.displayName = displayName;
     }
 
-    public void setOwnerRegistrationCode(Grade grade){
+    public void setGrade(Grade grade){
         this.grade = grade;
     }
 

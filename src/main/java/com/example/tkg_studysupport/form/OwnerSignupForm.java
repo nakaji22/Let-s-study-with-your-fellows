@@ -65,7 +65,7 @@ public class OwnerSignupForm {
         this.password = password;
     }
 
-    public void setPasswordComfimation(String passwordConfirmation){
+    public void setPasswordConfirmation(String passwordConfirmation){
         this.passwordConfirmation = passwordConfirmation;
     }
 

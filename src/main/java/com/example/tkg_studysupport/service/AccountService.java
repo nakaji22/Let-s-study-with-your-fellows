@@ -85,7 +85,7 @@ public class AccountService {
     public Account registerOwner(OwnerSignupForm form){
         validateLoginIdNotDuplicated(form.getLoginId());
         validatePasswordMatches(form.getPassword(), form.getPasswordConfirmation());
-        validateCodeMatchs(passwordEncoder.encode(form.getOwnerRegistrationCode()), ownerRegistrationCodeHash);
+        validateCodeMatchs(form.getOwnerRegistrationCode(), ownerRegistrationCodeHash);
         String passwordHash = passwordEncoder.encode(form.getPassword());
 
         Account account = new Account(
@@ -122,6 +122,7 @@ public class AccountService {
     }
 
     private void validateCodeMatchs(String inputOwnerCode, String ownerRegistrationCode){
+        /* matches(平文, ハッシュ) */
         if(!passwordEncoder.matches(inputOwnerCode, ownerRegistrationCode)){
             throw new OwnerCodeMismatchException("入力された講師コードに間違いがあります。");
         }
