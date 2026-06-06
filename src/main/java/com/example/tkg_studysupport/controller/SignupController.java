@@ -17,22 +17,28 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import jakarta.validation.Valid;
 
 /** 生徒登録画面の表示とServiceへの登録依頼、講師登録画面の表示とServiceへの登録依頼を担当する。 */
+/* @RequestMappingはブラウザからのURL(リクエスト)をJavaの処理に結び付けるアノテーション.  */
 @Controller
 @RequestMapping("/signup")
 public class SignupController {
 
+    /* AccountServiceは@ServiceによりSpringに保存されているので、newなしで宣言可能 */
+    /** 生徒と講師の登録を行うメソッドをもつクラスをインスタンス化。 */
     private final AccountService accountService;
 
+    /* コンストラクタが１つの場合、@Autowiredは省略可能 */
     public SignupController(AccountService accountService){
         this.accountService = accountService;
     }
 
+    /** "/student"にアクセスがあった場合、空のStudentSignupFormを作成し、Modelに格納して登録画面のURLを返す */
     @GetMapping("/student")
     public String displayStudentRegister(Model model){
         model.addAttribute("studentSignupForm", new StudentSignupForm());
         return "student-signup";
     }
 
+    /** 例外がなければ生徒の登録を行う。成功すれば"/login"にリダイレクトし、例外が起こればエラーメッセージを受け取って登録画面に戻す。 */
     @PostMapping("/student")
     public String makeStudentSignup(@ModelAttribute @Valid StudentSignupForm studentSignupForm, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
@@ -58,12 +64,14 @@ public class SignupController {
         return "redirect:/login";
     }
 
+    /** "/owner"にアクセスがあった場合、空のStudentSignupFormを作成し、Modelに格納して登録画面のURLを返す */
     @GetMapping("/owner")
     public String displayOwnerRegister(Model model){
         model.addAttribute("ownerSignupForm", new OwnerSignupForm());
         return "owner-signup";
     }
 
+    /** 例外がなければ講師の登録を行う。成功すれば"/login"にリダイレクトし、例外が起こればエラーメッセージを受け取って登録画面に戻す。 */
     @PostMapping("/owner")
     public String makeOwnerRegister(@ModelAttribute @Valid OwnerSignupForm ownerSignupForm, BindingResult bindingResult){
         if(bindingResult.hasErrors()){

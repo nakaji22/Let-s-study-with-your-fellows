@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ログイン</title>
+</head>
+<body>
+
+    <h1>ログイン</h1>
+
+    <!-- 認証失敗時のみ表示 -->
+    <p th:if="${param.error}">
+        ログインIDまたはパスワードが正しくありません。
+    </p>
+
+    <!-- ログアウト後のみ表示 -->
+    <p th:if="${param.logout}">
+        ログアウトしました。
+    </p>
+
+    <form th:action="@{/login}" method="post">
+
+        <div>
+            <label for="username">ログインID</label>
+            <input type="text"
+                   id="username"
+                   name="username"
+                   autocomplete="username"
+                   required>
+        </div>
+
+        <div>
+            <label for="password">パスワード</label>
+            <input type="password"
+                   id="password"
+                   name="password"
+                   autocomplete="current-password"
+                   required>
+        </div>
+
+        <div>
+            <button type="submit">ログイン</button>
+        </div>
+
+    </form>
+
+    <hr>
+
+    <p>
+        <a th:href="@{/signup/student}">生徒として新規登録する</a>
+    </p>
+
+    <p>
+        <a th:href="@{/signup/owner}">講師として新規登録する</a>
+    </p>
+
+</body>
+</html>
+
+<!-- 
+1. 利用者が /login を開く
+        ↓
+2. LoginController が login.html を返す
+        ↓
+3. 利用者がログインIDとパスワードを入力する
+        ↓
+4. login.html が POST /login を送信する
+        ↓
+5. Spring SecurityのFilterが受け取る
+        ↓
+6. CustomUserDetailsService.loadUserByUsername(username) を呼ぶ
+        ↓
+7. AccountRepository.findByLoginId(username) でDB検索
+        ↓
+8. AccountをUserDetailsへ変換して返す
+        ↓
+9. Spring SecurityがPasswordEncoderでパスワード照合
+        ↓
+10. roleを権限として保持する
+        ↓
+11. 認証成功ならログイン済み状態をセッションへ保存
+        ↓
+12. /home へリダイレクト 
+-->
