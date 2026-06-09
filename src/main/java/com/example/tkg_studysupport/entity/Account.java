@@ -62,7 +62,7 @@ public class Account {
 
     /** プロフィールに表示する名前。 */
     @NotBlank
-    @Column(name="display_name", nullable = false, length = 50)
+    @Column(name="display_name", nullable = false, length = 255)
     @Size(max = 50, message = "ユーザー名は50文字以下で設定してください。")
     private String displayName;
 
@@ -79,7 +79,6 @@ public class Account {
     /** 登録日時管理用フィールド。 */
     @NotNull
     @Column(name="created_at", nullable = false)
-    @NotNull
     private LocalDateTime createdAt;
 
     public Long getId(){
