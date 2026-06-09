@@ -1,9 +1,13 @@
 package com.example.tkg_studysupport.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.tkg_studysupport.entity.Account;
 import com.example.tkg_studysupport.entity.Community;
@@ -12,6 +16,7 @@ import com.example.tkg_studysupport.entity.OwnerProfile;
 import com.example.tkg_studysupport.entity.StudentProfile;
 import com.example.tkg_studysupport.exception.AccountNotFoundException;
 import com.example.tkg_studysupport.exception.AlreadyJoinedCommunityException;
+import com.example.tkg_studysupport.exception.CommunityNotFoundException;
 import com.example.tkg_studysupport.exception.OwnerProfileNotFoundException;
 import com.example.tkg_studysupport.exception.PasswordMismatchException;
 import com.example.tkg_studysupport.exception.StudentProfileNotFoundException;
@@ -23,8 +28,7 @@ import com.example.tkg_studysupport.repository.CommunityRepository;
 import com.example.tkg_studysupport.repository.OwnerProfileRepository;
 import com.example.tkg_studysupport.repository.StudentProfileRepository;
 
-import jakarta.transaction.Transactional;
-
+@Service
 public class CommunityService {
     private final CommunityRepository communityRepository;
     private final CommunityMembershipRepository communityMembershipRepository;
@@ -127,12 +131,58 @@ public class CommunityService {
         }
     }
 
-    public void searchActiveCommunities() {
+    @Transactional(readOnly = true)
+    public List<Community> searchActiveCommunities(String keyword) {
+        String strippedKeyword = keyword.strip();
+        if(strippedKeyword.isEmpty()){
+            List<Community> emptyList = new ArrayList<>();
+            return emptyList;
+        }
+        List<Community> communityList= communityRepository.findByCommunityNameContainingIgnoreCaseAndActiveTrue(strippedKeyword);
+        return communityList;
     }
 
-    public void findJoinedCommunities() {
+    @Transactional(readOnly = true)
+    public List<CommunityMembership> findJoinedCommunities(String loginId) {
+        Optional<Account> optionalAccount = accountRepository.findByLoginId(loginId);
+        if(optionalAccount.isEmpty()){
+            throw new AccountNotFoundException("アカウントが見つかりません。");
+        }
+
+        Account account = optionalAccount.get();
+        Optional<StudentProfile> optionalStudent = studentProfileRepository.findByAccount(account);
+
+        if(optionalStudent.isEmpty()){
+            throw new StudentProfileNotFoundException("生徒情報が見つかりません。");
+        } 
+
+        StudentProfile student = optionalStudent.get();
+        List<CommunityMembership> communityList = communityMembershipRepository.findByStudentAndActiveTrue(student); 
+
+        return communityList;
     }
 
-    public void findActiveMembers() {
+    @Transactional(readOnly = true)
+    public List<CommunityMembership> findActiveMembers(String loginId, Long communityId) {
+        Optional<Account> optionalAccount = accountRepository.findByLoginId(loginId);
+        if(optionalAccount.isEmpty()){
+            throw new AccountNotFoundException("アカウントが見つかりません。");
+        }
+
+        Account account = optionalAccount.get();
+        Optional<OwnerProfile> optionalOwner = ownerProfileRepository.findByAccount(account);
+        
+        if(optionalOwner.isEmpty()){
+            throw new OwnerProfileNotFoundException("講師情報が見つかりません。");
+        }
+
+        Optional<Community> optionalCommunity = communityRepository.findById(communityId);
+        if(optionalCommunity.isEmpty()){
+            throw new CommunityNotFoundException("コミュニティが見つかりません。");
+        }
+        Community community = optionalCommunity.get();
+
+        List<CommunityMembership> communityMembershipList = communityMembershipRepository.findByCommunityAndActiveTrue(community);
+        return communityMembershipList;
     }
 }
