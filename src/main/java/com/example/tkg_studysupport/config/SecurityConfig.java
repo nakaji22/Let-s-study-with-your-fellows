@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest;
 
 /** パスワードのハッシュ化用クラス。 */
 /* 設定クラスの宣言. */
@@ -22,8 +23,15 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/signup/**", "/login").permitAll()
+                .requestMatchers(PathRequest.toH2Console()).permitAll()
+                .requestMatchers("/login", "/signup/**").permitAll()
                 .anyRequest().authenticated()
+            )
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers(PathRequest.toH2Console())
+            )
+            .headers(headers -> headers
+                .frameOptions(frameOptions -> frameOptions.sameOrigin())
             )
             .formLogin(form -> form
                 .loginPage("/login")
@@ -31,8 +39,15 @@ public class SecurityConfig {
                 .defaultSuccessUrl("/home", true)
                 .failureUrl("/login?error")
                 .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutSuccessUrl("/login?logout")
+                .permitAll()
             );
 
         return http.build();
     }
+
 }
+
+
