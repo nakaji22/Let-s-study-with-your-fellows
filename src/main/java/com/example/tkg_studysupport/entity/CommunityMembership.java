@@ -80,4 +80,12 @@ public class CommunityMembership {
         return active;
     }
 
+    public void EnableActive() {
+        this.active = true;
+    }
+
+    public void UnEnableActive() {
+        this.active = false;
+    }
+
 }
