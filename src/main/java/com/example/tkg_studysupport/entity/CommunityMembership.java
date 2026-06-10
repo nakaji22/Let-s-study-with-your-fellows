@@ -16,6 +16,7 @@ import jakarta.validation.constraints.NotNull;
 
 /* 同じ生徒が同じコミュニティに重複参加できないように、
    community_id と student_profile_id の組み合わせに一意制約を付ける。 */
+/** 生徒と参加コミュニティの対応関係を表すエンティティ。 */
 @Entity
 @Table(
     name = "community_memberships",
@@ -27,9 +28,12 @@ import jakarta.validation.constraints.NotNull;
     }
 )
 public class CommunityMembership {
-
+    /**
+     * Hibernateが使用する引数なしコンストラクタ。
+     */
     protected CommunityMembership(){}
 
+    /** メンバーシップ登録用コンストラクタ。 */
     public CommunityMembership(Community community, StudentProfile student){
         this.community = community;
         this.student = student;
@@ -37,29 +41,35 @@ public class CommunityMembership {
         this.active = true;
     }
 
+    /** メンバーシップID。 */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long membershipId;
 
     /* optional = false は、その関連先Entityが必ず存在しなければならないことを表す. */
 
+    /** 参加コミュニティ。外侮キー。 */
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "community_id", nullable = false)
     private Community community;
 
+    /** 参加している生徒。外部キー。 */
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "student_profile_id", nullable = false)
     private StudentProfile student;
 
+    /** 参加日時。 */
     @NotNull
     @Column(name = "joined_at", nullable = false)
     private LocalDateTime joinedAt;
 
+    /** 有効性。 */
     @Column(name="active", nullable = false)
     private boolean active;
 
+    /* Getterの定義。 */
     public LocalDateTime getJoinedAt() {
         return joinedAt;
     }
@@ -80,11 +90,12 @@ public class CommunityMembership {
         return active;
     }
 
-    public void EnableActive() {
+    /* Activeに関するSetterの定義。 */
+    public void reactive() {
         this.active = true;
     }
 
-    public void UnEnableActive() {
+    public void deactive() {
         this.active = false;
     }
 

@@ -37,7 +37,10 @@ public class SignupController {
         model.addAttribute("studentSignupForm", new StudentSignupForm());
         return "student-signup";
     }
-
+    
+    /* @ModelAttribute:CommunityCreateForm の各フィールドへ値を代入する. */
+    /* @Valid:CommunityCreateForm に付いた制約を検証する. */
+    /* 検証結果を BindingResult に格納する. */
     /** 例外がなければ生徒の登録を行う。成功すれば"/login"にリダイレクトし、例外が起こればエラーメッセージを受け取って登録画面に戻す。 */
     @PostMapping("/student")
     public String makeStudentSignup(@ModelAttribute @Valid StudentSignupForm studentSignupForm, BindingResult bindingResult){
