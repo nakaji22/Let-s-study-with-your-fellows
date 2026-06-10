@@ -4,18 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.tkg_studysupport.dto.CommunityListResult;
 import com.example.tkg_studysupport.entity.Account;
 import com.example.tkg_studysupport.entity.Community;
 import com.example.tkg_studysupport.entity.CommunityMembership;
 import com.example.tkg_studysupport.entity.OwnerProfile;
 import com.example.tkg_studysupport.entity.StudentProfile;
 import com.example.tkg_studysupport.exception.AccountNotFoundException;
-import com.example.tkg_studysupport.exception.AlreadyJoinedCommunityException;
 import com.example.tkg_studysupport.exception.CommunityNotFoundException;
 import com.example.tkg_studysupport.exception.OwnerProfileNotFoundException;
 import com.example.tkg_studysupport.exception.PasswordMismatchException;
@@ -102,11 +103,13 @@ public class CommunityService {
             throw new IllegalStateException("コミュニティはアクティブではありません。");
         }
 
+        /* パスワード検証. */
         validatePasswordMatches(form.getJoinPassword(), community.getJoinPasswordHash());
         
         Optional<CommunityMembership> optionalMembership = communityMembershipRepository
             .findByCommunityAndStudent(community, student);
 
+        /* 初参加. */
         if(optionalMembership.isEmpty()){
            CommunityMembership createdCommunityMembership = new CommunityMembership(community, student);
            CommunityMembership savedCommunityMembership = communityMembershipRepository.save(createdCommunityMembership);
@@ -115,13 +118,13 @@ public class CommunityService {
 
         CommunityMembership membership = optionalMembership.get();
 
+        /* 参加済み. */
         if (membership.isActive()) {
-            throw new AlreadyJoinedCommunityException(
-                "すでにこのコミュニティに参加しています。"
-            );
-        }            
+            return membership;
+        }        
+        /* メンバーシップを最有効化. */    
         else{
-            membership.reactive();
+            membership.reactivate();
             CommunityMembership savedCommunityMembership = communityMembershipRepository.save(membership);
             return savedCommunityMembership;           
         }
@@ -136,14 +139,14 @@ public class CommunityService {
     }
 
     /* readOnly=trueにより読み取り専用のトランザクション処理を宣言する。検索のみのメソッドに適用することで役割を明確化する。 */
-    //* 有効なコミュニティの一覧を返す。 */
+    //* 有効な未参加コミュニティの一覧を返す。 */
     @Transactional(readOnly = true)
-    public List<Community> searchActiveCommunities(String keyword) {
-        String strippedKeyword = keyword.strip();
-        if(strippedKeyword.isEmpty()){
-            List<Community> emptyList = new ArrayList<>();
-            return emptyList;
+    public List<Community> searchAllCommunities(String keyword) {
+        if(keyword == null){
+            List<Community> allCommunityList = communityRepository.findAll();
+            return allCommunityList;
         }
+        String strippedKeyword = keyword.strip();
         List<Community> communityList= communityRepository.findByCommunityNameContainingIgnoreCaseAndActiveTrue(strippedKeyword);
         return communityList;
     }
@@ -192,4 +195,35 @@ public class CommunityService {
         List<CommunityMembership> communityMembershipList = communityMembershipRepository.findByCommunityAndActiveTrue(community);
         return communityMembershipList;
     }
+
+    /** すべての有効なコミュニティから、特定生徒が参加しているコミュニティを選別する。 */
+    @Transactional(readOnly = true)
+    public CommunityListResult searchResultCommunities(List<Community> communities, String loginId){
+        Account account = accountRepository.findByLoginId(loginId)
+                    .orElseThrow(() -> new AccountNotFoundException(
+                    "アカウントが見つかりません。"
+                    ));
+
+        StudentProfile student = studentProfileRepository
+            .findByAccount(account)
+            .orElseThrow(() -> new StudentProfileNotFoundException(
+                "生徒情報が見つかりません。"
+            ));       
+
+        List<CommunityMembership> joinedCommunityMembership = communityMembershipRepository.findByStudentAndActiveTrue(student);
+        List<Community> joinedCommunities = new ArrayList<>();
+
+        for(CommunityMembership eachCommunityMembership : joinedCommunityMembership){
+            joinedCommunities.add(eachCommunityMembership.getCommunity());
+        }
+
+        List<Community> availableCommunities = communities.stream()
+        .filter(element -> !joinedCommunities.contains(element))
+        .collect(Collectors.toList());
+
+        CommunityListResult communityResult = new CommunityListResult(joinedCommunities, availableCommunities);
+
+        return communityResult;
+    }
+
 }

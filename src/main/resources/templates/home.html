@@ -14,5 +14,280 @@
         <button type="submit">ログアウト</button>
     </form>
 
+    <!-- 講師だけ表示 -->
+    <form
+        th:if="${role != null and role.name() == 'OWNER'}"
+        th:action="@{/communities/create}"
+        method="get"
+    >
+        <button type="submit">コミュニティ作成</button>
+    </form>
+
+    <section>
+        <h2>コミュニティを探す</h2>
+
+        <form th:action="@{/home}" method="get">
+            <label for="keyword">コミュニティ名</label>
+
+            <input
+                type="text"
+                id="keyword"
+                name="keyword"
+                th:value="${keyword}"
+                placeholder="コミュニティ名を入力"
+            >
+
+            <button type="submit">検索</button>
+
+            <a th:href="@{/home}">検索条件をクリア</a>
+        </form>
+    </section>
+
+    <hr>
+
+    <!-- ==================================================
+         STUDENT向け表示
+         ================================================== -->
+    <div th:if="${role != null and role.name() == 'STUDENT'}">
+
+        <!-- 参加済みコミュニティ -->
+        <section>
+            <h2>参加済みのコミュニティ</h2>
+
+            <p th:if="${#lists.isEmpty(joinedCommunities)}">
+                参加済みのコミュニティはありません。
+            </p>
+
+            <ul th:unless="${#lists.isEmpty(joinedCommunities)}">
+                <li th:each="community : ${joinedCommunities}">
+                    <button
+                        type="button"
+                        class="open-board-dialog"
+                        th:attr="
+                            data-community-name=${community.communityName},
+                            data-board-url=@{/communities/{communityId}/board(
+                                communityId=${community.communityId}
+                            )}
+                        "
+                    >
+                        <span th:text="${community.communityName}">
+                            コミュニティ名
+                        </span>
+                    </button>
+                </li>
+            </ul>
+        </section>
+
+        <hr>
+
+        <!-- 参加可能コミュニティ -->
+        <section>
+            <h2>参加可能なコミュニティ</h2>
+
+            <p th:if="${#lists.isEmpty(availableCommunities)}">
+                条件に一致する参加可能なコミュニティはありません。
+            </p>
+
+            <ul th:unless="${#lists.isEmpty(availableCommunities)}">
+                <li th:each="community : ${availableCommunities}">
+                    <button
+                        type="button"
+                        class="open-join-dialog"
+                        th:attr="
+                            data-community-name=${community.communityName},
+                            data-join-url=@{/communities/{communityId}/join(
+                                communityId=${community.communityId}
+                            )}
+                        "
+                    >
+                        <span th:text="${community.communityName}">
+                            コミュニティ名
+                        </span>
+                    </button>
+                </li>
+            </ul>
+        </section>
+
+    </div>
+
+    <!-- ==================================================
+         OWNER向け表示
+         ================================================== -->
+    <div th:if="${role != null and role.name() == 'OWNER'}">
+
+        <section>
+            <h2>コミュニティ一覧</h2>
+
+            <p th:if="${#lists.isEmpty(ownerCommunities)}">
+                条件に一致するコミュニティはありません。
+            </p>
+
+            <ul th:unless="${#lists.isEmpty(ownerCommunities)}">
+                <li th:each="community : ${ownerCommunities}">
+                    <button
+                        type="button"
+                        class="open-board-dialog"
+                        th:attr="
+                            data-community-name=${community.communityName},
+                            data-board-url=@{/communities/{communityId}/board(
+                                communityId=${community.communityId}
+                            )}
+                        "
+                    >
+                        <span th:text="${community.communityName}">
+                            コミュニティ名
+                        </span>
+                    </button>
+                </li>
+            </ul>
+        </section>
+
+    </div>
+
+    <!-- ==================================================
+         掲示板移動用ポップアップ
+         STUDENTの参加済み一覧とOWNER一覧で共通利用
+         ================================================== -->
+    <dialog id="boardDialog">
+        <p id="boardDialogMessage"></p>
+
+        <form id="boardMoveForm" method="get">
+            <button type="submit">移動する</button>
+
+            <button type="button" id="closeBoardDialog">
+                移動しない
+            </button>
+        </form>
+    </dialog>
+
+    <!-- ==================================================
+         STUDENT専用: コミュニティ参加用ポップアップ
+         ================================================== -->
+    <dialog
+        id="joinDialog"
+        th:if="${role != null and role.name() == 'STUDENT'}"
+    >
+        <p id="joinDialogMessage"></p>
+
+        <form id="joinCommunityForm" method="post">
+            <!-- Spring SecurityのCSRF対策 -->
+            <input
+                type="hidden"
+                th:if="${_csrf != null}"
+                th:name="${_csrf.parameterName}"
+                th:value="${_csrf.token}"
+            >
+
+            <label for="joinPassword">
+                コミュニティパスワード
+            </label>
+
+            <input
+                type="password"
+                id="joinPassword"
+                name="joinPassword"
+                required
+            >
+
+            <button type="submit">参加する</button>
+
+            <button type="button" id="closeJoinDialog">
+                参加しない
+            </button>
+        </form>
+    </dialog>
+
+    <script>
+        const boardDialog =
+            document.getElementById("boardDialog");
+
+        const boardDialogMessage =
+            document.getElementById("boardDialogMessage");
+
+        const boardMoveForm =
+            document.getElementById("boardMoveForm");
+
+        /*
+         * STUDENTの参加済みコミュニティ、
+         * またはOWNERのコミュニティをクリックした場合。
+         */
+        document
+            .querySelectorAll(".open-board-dialog")
+            .forEach(button => {
+                button.addEventListener("click", () => {
+                    const communityName =
+                        button.dataset.communityName;
+
+                    const boardUrl =
+                        button.dataset.boardUrl;
+
+                    boardDialogMessage.textContent =
+                        `「${communityName}」の掲示板に移動しますか？`;
+
+                    boardMoveForm.action = boardUrl;
+
+                    boardDialog.showModal();
+                });
+            });
+
+        document
+            .getElementById("closeBoardDialog")
+            .addEventListener("click", () => {
+                boardDialog.close();
+            });
+
+        /*
+         * STUDENT専用の参加用ポップアップ。
+         * OWNERでは要素自体が存在しないため、nullチェックを行う。
+         */
+        const joinDialog =
+            document.getElementById("joinDialog");
+
+        const joinDialogMessage =
+            document.getElementById("joinDialogMessage");
+
+        const joinCommunityForm =
+            document.getElementById("joinCommunityForm");
+
+        const joinPassword =
+            document.getElementById("joinPassword");
+
+        const closeJoinDialog =
+            document.getElementById("closeJoinDialog");
+
+        if (
+            joinDialog !== null &&
+            joinDialogMessage !== null &&
+            joinCommunityForm !== null &&
+            joinPassword !== null &&
+            closeJoinDialog !== null
+        ) {
+            document
+                .querySelectorAll(".open-join-dialog")
+                .forEach(button => {
+                    button.addEventListener("click", () => {
+                        const communityName =
+                            button.dataset.communityName;
+
+                        const joinUrl =
+                            button.dataset.joinUrl;
+
+                        joinDialogMessage.textContent =
+                            `「${communityName}」に参加しますか？`;
+
+                        joinCommunityForm.action = joinUrl;
+
+                        joinPassword.value = "";
+
+                        joinDialog.showModal();
+                    });
+                });
+
+            closeJoinDialog.addEventListener("click", () => {
+                joinDialog.close();
+            });
+        }
+    </script>
+
 </body>
 </html>

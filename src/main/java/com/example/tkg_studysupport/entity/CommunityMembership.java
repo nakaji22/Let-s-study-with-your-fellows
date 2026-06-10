@@ -91,11 +91,11 @@ public class CommunityMembership {
     }
 
     /* Activeに関するSetterの定義。 */
-    public void reactive() {
+    public void reactivate() {
         this.active = true;
     }
 
-    public void deactive() {
+    public void deactivate() {
         this.active = false;
     }
 

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>コミュニティ作成</title>
+</head>
+<body>
+
+    <h1>コミュニティ作成</h1>
+
+    <form th:action="@{/communities/create}"
+          th:object="${communityCreateForm}"
+          method="post">
+
+        <div>
+            <label for="communityName">コミュニティ名</label>
+            <input type="text"
+                    id="communityName"
+                    th:field="*{communityName}">
+
+            <p th:if="${#fields.hasErrors('communityName')}"
+                th:errors="*{communityName}">
+                コミュニティ名のエラーメッセージ
+            </p>
+        </div>
+
+        <div>
+            <label for="joinPassword">パスワード</label>
+            <input type="password"
+                   id="joinPassword"
+                   th:field="*{joinPassword}">
+
+            <p th:if="${#fields.hasErrors('joinPassword')}"
+               th:errors="*{joinPassword}">
+                パスワードのエラーメッセージ
+            </p>
+        </div>
+
+        <div>
+            <label for="joinPasswordConfirmation">パスワード</label>
+            <input type="password"
+                   id="joinPasswordConfirmation"
+                   th:field="*{joinPasswordConfirmation}">
+
+            <p th:if="${#fields.hasErrors('joinPasswordConfirmation')}"
+               th:errors="*{joinPasswordConfirmation}">
+                確認用パスワードのエラーメッセージ
+            </p>
+        </div>
+
+        <div>
+            <button type="submit">作成</button>
+        </div>
+
+    </form>
+
+    <hr>
+
+    <p>
+        <a th:href="@{/home}">ホーム画面へ戻る</a>
+    </p>
+
+</body>
+
+</html>

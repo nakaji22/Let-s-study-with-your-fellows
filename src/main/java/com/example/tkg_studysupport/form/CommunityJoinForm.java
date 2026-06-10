@@ -11,6 +11,11 @@ public class CommunityJoinForm {
      */    
     public CommunityJoinForm(){}
 
+    public CommunityJoinForm(Long communityId, String joinPassword){
+        this.communityId = communityId;
+        this.joinPassword = joinPassword;
+    }
+
     /** コミュニティID。 */
     @NotNull
     private Long communityId;
@@ -20,10 +25,6 @@ public class CommunityJoinForm {
     @Size(min = 8, max = 50, message = "パスワードは8文字以上50文字以下で入力してください。")
     private String joinPassword;
 
-    /** 確認用コミュニティパスワード。 */
-    @NotBlank
-    @Size(min = 8, max = 50, message = "確認用パスワードは8文字以上50文字以下で入力してください。")
-    private String joinPasswordConfirmation;
 
     /* Getterの定義 */
     public Long getCommunityId() {
@@ -34,10 +35,6 @@ public class CommunityJoinForm {
         return joinPassword;
     }
 
-    public String getJoinPasswordConfirmation() {
-        return joinPasswordConfirmation;
-    }
-
     /* Setterの定義 */
     public void setCommunityId(Long communityId) {
         this.communityId = communityId;
@@ -45,10 +42,6 @@ public class CommunityJoinForm {
 
     public void setJoinPassword(String joinPassword) {
         this.joinPassword = joinPassword;
-    }
-
-    public void setJoinPasswordConfirmation(String joinPasswordConfirmation) {
-        this.joinPasswordConfirmation = joinPasswordConfirmation;
     }
 
 }
