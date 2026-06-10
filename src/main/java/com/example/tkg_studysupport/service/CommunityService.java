@@ -1,9 +1,10 @@
 package com.example.tkg_studysupport.service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -131,9 +132,9 @@ public class CommunityService {
 
     }
 
-    //* パスワードと確認用パスワードの一致確認を行う。 */
+    //** パスワードと確認用パスワードの一致確認を行う。 */
     private void validatePasswordMatches(String password, String passwordConfirmation){
-        if(!Objects.equals(password, passwordConfirmation)){
+        if(!passwordEncoder.matches(password, passwordConfirmation)){
             throw new PasswordMismatchException("パスワードが違います。");
         }
     }
@@ -196,34 +197,85 @@ public class CommunityService {
         return communityMembershipList;
     }
 
-    /** すべての有効なコミュニティから、特定生徒が参加しているコミュニティを選別する。 */
+    /** 
+     * すべての有効なコミュニティから、
+     * 特定生徒が参加しているコミュニティと参加可能なコミュニティを選別する。
+     */
     @Transactional(readOnly = true)
-    public CommunityListResult searchResultCommunities(List<Community> communities, String loginId){
-        Account account = accountRepository.findByLoginId(loginId)
-                    .orElseThrow(() -> new AccountNotFoundException(
-                    "アカウントが見つかりません。"
-                    ));
+    public CommunityListResult searchResultCommunities(
+        List<Community> communities,
+        String loginId
+    ) {
+        Account account = accountRepository
+            .findByLoginId(loginId)
+            .orElseThrow(() -> new AccountNotFoundException(
+                "アカウントが見つかりません。"
+            ));
 
         StudentProfile student = studentProfileRepository
             .findByAccount(account)
             .orElseThrow(() -> new StudentProfileNotFoundException(
                 "生徒情報が見つかりません。"
-            ));       
+            ));
 
-        List<CommunityMembership> joinedCommunityMembership = communityMembershipRepository.findByStudentAndActiveTrue(student);
+        List<CommunityMembership> joinedCommunityMemberships =
+            communityMembershipRepository.findByStudentAndActiveTrue(student);
+
         List<Community> joinedCommunities = new ArrayList<>();
 
-        for(CommunityMembership eachCommunityMembership : joinedCommunityMembership){
-            joinedCommunities.add(eachCommunityMembership.getCommunity());
+        /*
+        * 参加済みコミュニティのIDを保存する。
+        * Communityオブジェクトそのものではなく、
+        * DB上で一意なcommunityIdを使って比較する。
+        */
+        Set<Long> joinedCommunityIds = new HashSet<>();
+
+        for (CommunityMembership membership : joinedCommunityMemberships) {
+            /*
+            * membershipやcommunityを1つずつ判定し、
+            * 問題があればその回の残りの処理をスキップする。
+            */
+            if (membership == null) {
+                continue;
+            }
+
+            Community community = membership.getCommunity();
+
+            if (community == null) {
+                continue;
+            }
+
+            if (!community.isActive()) {
+                continue;
+            }
+
+            Long communityId = community.getCommunityId();
+
+            if (communityId == null) {
+                continue;
+            }
+
+            /*
+            * 同じコミュニティが重複して追加されることも防ぐ。
+            */
+            if (joinedCommunityIds.add(communityId)) {
+                joinedCommunities.add(community);
+            }
         }
 
         List<Community> availableCommunities = communities.stream()
-        .filter(element -> !joinedCommunities.contains(element))
-        .collect(Collectors.toList());
+            .filter(community -> community != null)
+            .filter(Community::isActive)
+            .filter(community -> community.getCommunityId() != null)
+            .filter(community ->
+                !joinedCommunityIds.contains(community.getCommunityId())
+            )
+            .collect(Collectors.toList());
 
-        CommunityListResult communityResult = new CommunityListResult(joinedCommunities, availableCommunities);
-
-        return communityResult;
+        return new CommunityListResult(
+            joinedCommunities,
+            availableCommunities
+        );
     }
 
 }
