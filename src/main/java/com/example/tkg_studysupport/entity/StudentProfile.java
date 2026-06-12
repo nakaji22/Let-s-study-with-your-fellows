@@ -37,7 +37,7 @@ public class StudentProfile {
     private Long id;
 
     /* 必要になった時だけaccountを取得. EAGERならStudentProfile を取得した時点で即時取得. */
-    /* Account型の主キーであるidを外部キーとする. */
+    /* Account型の主キーであるidを外部キーとする.結合先のAccount内の"id"というカラムを外部キーとする. */
     /** 対応する生徒アカウント。 */
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "account_id", referencedColumnName = "id", nullable = false, unique = true)
