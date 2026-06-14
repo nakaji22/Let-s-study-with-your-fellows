@@ -34,4 +34,9 @@ public interface CommunityMembershipRepository extends JpaRepository<CommunityMe
         StudentProfile student
     );
 
+    Optional<CommunityMembership> findByCommunityAndStudentAndActiveTrue(
+            Community community,
+            StudentProfile student
+    );
+
 }

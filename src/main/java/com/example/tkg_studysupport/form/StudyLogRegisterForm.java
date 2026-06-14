@@ -15,6 +15,7 @@ public class StudyLogRegisterForm {
     private LocalDate studiedOn;
 
     /** 何分勉強したか。 */
+    @NotNull
     @Min(value = 1, message = "勉強時間は1分以上で入力してください。")
     @Max(value = 1440, message = "勉強時間は1440分以下で入力してください。")
     private Integer studyMinutes;
@@ -24,7 +25,7 @@ public class StudyLogRegisterForm {
         return studiedOn;
     }
 
-    public int getStudyMinutes() {
+    public Integer getStudyMinutes() {
         return studyMinutes;
     }
 
@@ -33,7 +34,7 @@ public class StudyLogRegisterForm {
         this.studiedOn = studiedOn;
     }
 
-    public void setStudyMinutes(int studyMinutes) {
+    public void setStudyMinutes(Integer studyMinutes) {
         this.studyMinutes = studyMinutes;
     }
 }

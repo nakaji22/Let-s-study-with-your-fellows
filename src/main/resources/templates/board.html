@@ -1,22 +1,142 @@
 <!DOCTYPE html>
-<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<html lang="ja"
+      xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>掲示板</title>
+    <title>コミュニティ掲示板</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/board.css}">
 </head>
-<body>
+
+<body th:data-open-study-log-modal="${openStudyLogModal != null and openStudyLogModal}">
 
     <h1 th:text="${community.communityName}">
         コミュニティ名
     </h1>
 
-    <h2>掲示板</h2>
+    <p>
+        <a th:href="@{/home}">
+            ホームへ戻る
+        </a>
+    </p>
 
-    <p>投稿はまだありません。</p>
+    <p th:if="${successMessage}"
+       th:text="${successMessage}">
+    </p>
 
-    <a th:href="@{/home}">
-        ホーム画面へ戻る
-    </a>
+    <section>
+        <h2>勉強記録一覧</h2>
+
+        <button id="openStudyLogDialog"
+                type="button">
+            勉強時間を登録する
+        </button>
+
+        <dialog id="studyLogDialog">
+            <form th:action="@{/communities/{communityId}/board(communityId=${community.communityId})}"
+                  th:object="${studyLogRegisterForm}"
+                  method="post">
+
+                <h2>勉強時間を登録する</h2>
+
+                <div th:if="${#fields.hasGlobalErrors()}">
+                    <p class="error-message"
+                       th:each="error : ${#fields.globalErrors()}"
+                       th:text="${error}">
+                    </p>
+                </div>
+
+                <div>
+                    <label for="studiedOn">
+                        勉強した日
+                    </label>
+
+                    <input id="studiedOn"
+                           type="date"
+                           th:field="*{studiedOn}">
+
+                    <p class="error-message"
+                       th:if="${#fields.hasErrors('studiedOn')}"
+                       th:errors="*{studiedOn}">
+                    </p>
+                </div>
+
+                <div>
+                    <label for="studyMinutes">
+                        勉強時間
+                    </label>
+
+                    <select id="studyMinutes"
+                            th:field="*{studyMinutes}">
+
+                        <option value="">
+                            選択してください
+                        </option>
+
+                        <option th:each="minutes : ${#numbers.sequence(5, 1440, 5)}"
+                                th:value="${minutes}"
+                                th:text="${minutes + '分'}">
+                        </option>
+                    </select>
+
+                    <p class="error-message"
+                       th:if="${#fields.hasErrors('studyMinutes')}"
+                       th:errors="*{studyMinutes}">
+                    </p>
+                </div>
+
+                <div>
+                    <button type="submit">
+                        記録する
+                    </button>
+
+                    <button id="closeStudyLogDialog"
+                            type="button">
+                        キャンセル
+                    </button>
+                </div>
+            </form>
+        </dialog>
+
+        <p th:if="${#lists.isEmpty(studyLogs)}">
+            まだ勉強記録はありません。
+        </p>
+
+        <table th:unless="${#lists.isEmpty(studyLogs)}"
+               border="1">
+            <thead>
+                <tr>
+                    <th>勉強日</th>
+                    <th>生徒名</th>
+                    <th>勉強時間</th>
+                    <th>登録日時</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr th:each="studyLog : ${studyLogs}">
+                    <td th:text="${studyLog.studiedOn}">
+                        2026-06-12
+                    </td>
+
+                    <td th:text="${studyLog.loggedBy.account.displayName}">
+                        生徒名
+                    </td>
+
+                    <td th:text="${studyLog.studyMinutes + '分'}">
+                        60分
+                    </td>
+
+                    <td th:text="${studyLog.createdAt}">
+                        2026-06-12T18:00
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <script th:src="@{/js/board.js}"></script>
 
 </body>
 </html>
