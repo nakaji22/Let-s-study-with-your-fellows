@@ -1,3 +1,4 @@
+/* HTMLの <dialog> 要素に対するデザイン指定を開始 */
 dialog {
     width: min(420px, 90%);
     padding: 24px;
@@ -9,10 +10,13 @@ dialog::backdrop {
     background: rgba(0, 0, 0, 0.4);
 }
 
+/* dialog の中にある div に対する指定 */
 dialog div {
     margin-top: 16px;
 }
 
+/* class="error-message" が付いた要素に対する指定 */
+/* HTMLでは <p class="error-message" ...> で引用 */
 .error-message {
     color: #cc0000;
 }

@@ -14,8 +14,11 @@ public class StudyLogRegisterForm {
     @PastOrPresent
     private LocalDate studiedOn;
 
+    // <p class="error-message"
+    //     th:if="${#fields.hasErrors('studyMinutes')}"
+    //     th:errors="*{studyMinutes}"> の部分でエラーとそのメッセージを受け取る。
     /** 何分勉強したか。 */
-    @NotNull
+    @NotNull(message = "勉強時間を選択してください。")
     @Min(value = 1, message = "勉強時間は1分以上で入力してください。")
     @Max(value = 1440, message = "勉強時間は1440分以下で入力してください。")
     private Integer studyMinutes;

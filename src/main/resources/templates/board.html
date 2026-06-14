@@ -5,12 +5,19 @@
     <meta charset="UTF-8">
     <title>コミュニティ掲示板</title>
 
+    <!-- cssの読み込み -->
     <link rel="stylesheet"
           th:href="@{/css/board.css}">
 </head>
 
+<!-- 外部JSファイル board.js ではThymeleafの/*[[${openStudyLogModal}]]*/が使いにくいため、
+代わりにHTML側に data-* 属性として値を埋め込み、JS側で読み取る。 
+Controllerの入力値エラー検知時の　model.addAttribute("openStudyLogModal", true); の部分と、
+jsファイルの document.body.dataset.openStudyLogModal === "true" の部分とつながっている。
+エラーがなければfalse、エラーがあればtrueになる。 -->
 <body th:data-open-study-log-modal="${openStudyLogModal != null and openStudyLogModal}">
 
+    <!-- Controllerの model.addAttribute("community", community); の部分とつながっている。 -->
     <h1 th:text="${community.communityName}">
         コミュニティ名
     </h1>
@@ -21,6 +28,10 @@
         </a>
     </p>
 
+    <!-- redirectAttributes.addFlashAttribute(
+            "successMessage",
+            "勉強時間を登録しました。"
+    ); -->
     <p th:if="${successMessage}"
        th:text="${successMessage}">
     </p>
@@ -33,6 +44,8 @@
             勉強時間を登録する
         </button>
 
+        <!-- ボタンが押されたら指定URLにstudyLogRegisterFormのObjectとともにPOST通信を送る。 -->
+        <!-- js側では document.getElementById("studyLogDialog"); で取得し、document.getElementById("studyLogDialog"); で開ける。 -->
         <dialog id="studyLogDialog">
             <form th:action="@{/communities/{communityId}/board(communityId=${community.communityId})}"
                   th:object="${studyLogRegisterForm}"
@@ -40,6 +53,7 @@
 
                 <h2>勉強時間を登録する</h2>
 
+                <!-- フォーム全体のエラー検知 -->
                 <div th:if="${#fields.hasGlobalErrors()}">
                     <p class="error-message"
                        th:each="error : ${#fields.globalErrors()}"
@@ -74,6 +88,7 @@
                             選択してください
                         </option>
 
+                        <!-- 5分刻みの選択肢を自動生成 -->
                         <option th:each="minutes : ${#numbers.sequence(5, 1440, 5)}"
                                 th:value="${minutes}"
                                 th:text="${minutes + '分'}">
@@ -99,6 +114,10 @@
             </form>
         </dialog>
 
+        <!-- model.addAttribute(
+                "studyLogs",
+                studyLogService.findStudyLogsByCommunity(communityId)
+        ); とつながっている。 -->
         <p th:if="${#lists.isEmpty(studyLogs)}">
             まだ勉強記録はありません。
         </p>
@@ -136,6 +155,7 @@
         </table>
     </section>
 
+    <!-- 外部jsファイルの読み込み -->
     <script th:src="@{/js/board.js}"></script>
 
 </body>
