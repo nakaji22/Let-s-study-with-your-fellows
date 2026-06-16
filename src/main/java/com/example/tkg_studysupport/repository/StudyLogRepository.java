@@ -1,6 +1,7 @@
 package com.example.tkg_studysupport.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -28,5 +29,9 @@ public interface StudyLogRepository extends JpaRepository<StudyLog, Long> {
     // メソッド引数の Community community を入れる
     List<StudyLog> findByCommunityOrderByStudiedOnAscCreatedAtAsc(
             @Param("community") Community community
+    );
+
+    Optional<StudyLog> findByStudyLogId(
+        Long studyLog
     );
 }

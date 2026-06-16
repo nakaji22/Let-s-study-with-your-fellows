@@ -34,7 +34,7 @@ public class StudyLog {
     /** 主キー。勉強記録ごとにuniqueなキーをつける。 */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long studyLogId;
 
     /* 外部キーとして参照したいStudentProfileのキーはもともと主キーなので、referencedColumnNameは省略可. */
     /** 誰が記録したかを保管する。 */
@@ -66,8 +66,8 @@ public class StudyLog {
     private int studyMinutes;
 
     /* Getterの定義 */
-    public Long getId() {
-        return id;
+    public Long getstudyLogId() {
+        return studyLogId;
     }
 
     public LocalDateTime getCreatedAt() {
