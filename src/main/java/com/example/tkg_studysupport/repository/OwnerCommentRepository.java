@@ -16,6 +16,8 @@ public interface OwnerCommentRepository
     @Query("""
             SELECT oc
             FROM OwnerComment oc
+            JOIN FETCH oc.commentedBy owner
+            JOIN FETCH owner.account
             WHERE oc.commentedIn = :studyLog
             ORDER BY oc.commentedAt ASC
             """)

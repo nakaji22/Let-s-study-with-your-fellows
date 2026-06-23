@@ -37,3 +37,18 @@ document.addEventListener("DOMContentLoaded", () => {
         studyLogDialog.showModal();
     }
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+    const clickableRows =
+        document.querySelectorAll(".clickable-row");
+
+    clickableRows.forEach((row) => {
+        row.addEventListener("click", () => {
+            const href = row.dataset.href;
+
+            if (href) {
+                window.location.href = href;
+            }
+        });
+    });
+});

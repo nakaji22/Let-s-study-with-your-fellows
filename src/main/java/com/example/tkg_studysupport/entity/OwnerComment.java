@@ -41,7 +41,7 @@ public class OwnerComment {
 
     /** どの講師がコメントしたか。 */
     @NotNull
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "commented_by", nullable = false, unique = false)
     private OwnerProfile commentedBy;
 

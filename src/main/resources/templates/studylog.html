@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>勉強記録</title>
+
+    <!-- cssの読み込み -->
+    <link rel="stylesheet"
+          th:href="@{/css/board.css}">
+</head>
+
+<body>
+
+    <h1 th:text="${community.communityName}">
+        コミュニティ名
+    </h1>
+
+    <p>
+        <a th:href="@{/communities/{communityId}/board(
+            communityId=${community.communityId}
+        )}">
+            掲示板へ戻る
+        </a>
+    </p>
+
+    <div>
+        <section>
+            <h2 th:text="${studyLog.loggedBy.account.displayName}">
+                生徒名
+            </h2>
+
+            <h3 th:text="${studyLog.studyMinutes + '分'}">
+                勉強時間
+            </h3>
+
+            <h4 th:text="${studyLog.studiedOn}">
+                2026-06-12
+            </h4>
+        </section>
+    </div>
+
+    <div>
+        <section>
+            <h2>コメント一覧</h2>
+
+            <p th:if="${#lists.isEmpty(comments)}">
+                まだコメントはありません。
+            </p>
+
+            <ol th:unless="${#lists.isEmpty(comments)}">
+                <li th:each="comment : ${comments}">
+                    <span th:text="${comment.comment}">
+                        コメント
+                    </span>
+                    <span th:text="${comment.commentedAt}">
+                        コメント日時
+                    </span>
+                    <span th:text="${comment.commentedBy.account.displayName}">
+                        コメント者
+                    </span>
+                </li>
+            </ol>
+
+            <!-- OWNERのときだけコメント投稿フォームを表示 -->
+            <div th:if="${role != null and role.name() == 'OWNER'}">
+                <h2>コメント投稿</h2>
+
+                <form th:action="@{/communities/{communityId}/board/studylog/{studyLogId}/comments(
+                    communityId=${community.communityId},
+                    studyLogId=${studyLog.studyLogId}
+                )}"
+                      th:object="${ownerCommentRegisterForm}"
+                      method="post">
+
+                    <div>
+                        <label for="comment">
+                            コメント
+                        </label>
+
+                        <input id="comment"
+                               type="text"
+                               th:field="*{comment}"
+                               minlength="1"
+                               maxlength="1096"
+                               placeholder="コメントを入力してください">
+
+                        <p class="error-message"
+                           th:if="${#fields.hasErrors('comment')}"
+                           th:errors="*{comment}">
+                        </p>
+                    </div>
+
+                    <button type="submit">
+                        投稿する
+                    </button>
+                </form>
+            </div>
+        </section>
+    </div>
+
+</body>
+</html>

@@ -20,27 +20,24 @@ import com.example.tkg_studysupport.repository.StudyLogRepository;
 @Service
 public class OwnerCommentService {
     
-    private final StudyLogRepository studyLogRepository;
     private final AccountRepository accountRepository;
     private final OwnerProfileRepository ownerProfileRepository;
     private final CommunityRepository communityRepository;
     private final OwnerCommentRepository ownerCommentRepository;
 
     public OwnerCommentService(
-            StudyLogRepository studyLogRepository,
             AccountRepository accountRepository,
             OwnerProfileRepository ownerProfileRepository,
             CommunityRepository communityRepository,
             OwnerCommentRepository ownerCommentRepository
     ) {
-        this.studyLogRepository = studyLogRepository;
         this.accountRepository = accountRepository;
         this.ownerProfileRepository = ownerProfileRepository;
         this.communityRepository = communityRepository;
         this.ownerCommentRepository = ownerCommentRepository;
     }
 
-    /* コメントの登録を行うメソッド。 */
+    /** コメントの登録を行うメソッド。 */
     public OwnerComment registerComment(String loginId,
                                         Long communityId,
                                         StudyLog studyLog,

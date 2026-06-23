@@ -31,7 +31,14 @@ public interface StudyLogRepository extends JpaRepository<StudyLog, Long> {
             @Param("community") Community community
     );
 
-    Optional<StudyLog> findByStudyLogId(
-        Long studyLog
+    @Query("""
+            SELECT sl
+            FROM StudyLog sl
+            JOIN FETCH sl.loggedBy student
+            JOIN FETCH student.account
+            WHERE sl.studyLogId = :studyLogId
+            """)
+    Optional<StudyLog> findByStudyLogIdWithStudentAccount(
+            @Param("studyLogId") Long studyLogId
     );
 }

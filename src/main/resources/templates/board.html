@@ -10,14 +10,22 @@
           th:href="@{/css/board.css}">
 </head>
 
-<!-- 外部JSファイル board.js ではThymeleafの/*[[${openStudyLogModal}]]*/が使いにくいため、
-代わりにHTML側に data-* 属性として値を埋め込み、JS側で読み取る。 
-Controllerの入力値エラー検知時の　model.addAttribute("openStudyLogModal", true); の部分と、
-jsファイルの document.body.dataset.openStudyLogModal === "true" の部分とつながっている。
-エラーがなければfalse、エラーがあればtrueになる。 -->
+<!--
+外部JSファイル board.js では Thymeleaf の /*[[${openStudyLogModal}]]*/ が使いにくいため、
+代わりにHTML側に data-* 属性として値を埋め込み、JS側で読み取る。
+
+Controllerの
+model.addAttribute("openStudyLogModal", true);
+と、
+JSファイルの
+document.body.dataset.openStudyLogModal === "true"
+がつながっている。
+
+エラーがなければ false、エラーがあれば true になる。
+-->
 <body th:data-open-study-log-modal="${openStudyLogModal != null and openStudyLogModal}">
 
-    <!-- Controllerの model.addAttribute("community", community); の部分とつながっている。 -->
+    <!-- Controllerの model.addAttribute("community", community); とつながっている。 -->
     <h1 th:text="${community.communityName}">
         コミュニティ名
     </h1>
@@ -28,10 +36,7 @@ jsファイルの document.body.dataset.openStudyLogModal === "true" の部分�
         </a>
     </p>
 
-    <!-- redirectAttributes.addFlashAttribute(
-            "successMessage",
-            "勉強時間を登録しました。"
-    ); -->
+    <!-- redirectAttributes.addFlashAttribute("successMessage", "勉強時間を登録しました。"); とつながる。 -->
     <p th:if="${successMessage}"
        th:text="${successMessage}">
     </p>
@@ -39,14 +44,18 @@ jsファイルの document.body.dataset.openStudyLogModal === "true" の部分�
     <section>
         <h2>勉強記録一覧</h2>
 
+        <!-- STUDENTのときだけ表示 -->
         <button id="openStudyLogDialog"
-                type="button">
+                type="button"
+                th:if="${role != null and role.name() == 'STUDENT'}">
             勉強時間を登録する
         </button>
 
-        <!-- ボタンが押されたら指定URLにstudyLogRegisterFormのObjectとともにPOST通信を送る。 -->
-        <!-- js側では document.getElementById("studyLogDialog"); で取得し、document.getElementById("studyLogDialog"); で開ける。 -->
-        <dialog id="studyLogDialog">
+        <!-- STUDENTのときだけdialog自体も表示 -->
+        <dialog id="studyLogDialog"
+                th:if="${role != null and role.name() == 'STUDENT'}">
+
+            <!-- ボタンが押されたら指定URLに studyLogRegisterForm のObjectとともにPOST通信を送る。 -->
             <form th:action="@{/communities/{communityId}/board(communityId=${community.communityId})}"
                   th:object="${studyLogRegisterForm}"
                   method="post">
@@ -114,10 +123,7 @@ jsファイルの document.body.dataset.openStudyLogModal === "true" の部分�
             </form>
         </dialog>
 
-        <!-- model.addAttribute(
-                "studyLogs",
-                studyLogService.findStudyLogsByCommunity(communityId)
-        ); とつながっている。 -->
+        <!-- model.addAttribute("studyLogs", studyLogService.findStudyLogsByCommunity(communityId)); とつながっている。 -->
         <p th:if="${#lists.isEmpty(studyLogs)}">
             まだ勉強記録はありません。
         </p>
@@ -134,7 +140,13 @@ jsファイルの document.body.dataset.openStudyLogModal === "true" の部分�
             </thead>
 
             <tbody>
-                <tr th:each="studyLog : ${studyLogs}">
+                <tr th:each="studyLog : ${studyLogs}"
+                    class="clickable-row"
+                    th:data-href="@{/communities/{communityId}/board/studylog/{studyLogId}(
+                        communityId=${community.communityId},
+                        studyLogId=${studyLog.studyLogId}
+                    )}">
+
                     <td th:text="${studyLog.studiedOn}">
                         2026-06-12
                     </td>

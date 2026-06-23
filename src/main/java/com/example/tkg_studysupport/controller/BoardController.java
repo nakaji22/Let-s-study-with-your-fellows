@@ -12,7 +12,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.tkg_studysupport.entity.Account;
 import com.example.tkg_studysupport.entity.Community;
+import com.example.tkg_studysupport.repository.AccountRepository;
+import com.example.tkg_studysupport.exception.AccountNotFoundException;
 import com.example.tkg_studysupport.exception.CannotRegisterStudyLogException;
 import com.example.tkg_studysupport.exception.CommunityNotFoundException;
 import com.example.tkg_studysupport.form.StudyLogRegisterForm;
@@ -26,22 +29,26 @@ public class BoardController {
 
     private final CommunityRepository communityRepository;
     private final StudyLogService studyLogService;
+    private final AccountRepository accountRepository;
 
     public BoardController(
             CommunityRepository communityRepository,
-            StudyLogService studyLogService
+            StudyLogService studyLogService,
+            AccountRepository accountRepository
     ) {
         this.communityRepository = communityRepository;
         this.studyLogService = studyLogService;
+        this.accountRepository = accountRepository;
     }
 
     /** 掲示板を表示する。 */
     @GetMapping("/communities/{communityId}/board")
     public String showBoard(
             @PathVariable(name = "communityId") Long communityId,
+            Authentication authentication,
             Model model
     ) {
-        return renderBoard(communityId, model);
+        return renderBoard(communityId, authentication.getName(), model);
     }
 
     /* ModelAttributeはHTMLの入力データを受け取り, Javaのオブジェクトに変換する. */
@@ -60,7 +67,7 @@ public class BoardController {
         /* 入力値エラーチェック */
         if (bindingResult.hasErrors()) {
             model.addAttribute("openStudyLogModal", true);
-            return renderBoard(communityId, model);
+            return renderBoard(communityId, authentication.getName(), model);
         }
 
         String loginId = authentication.getName();
@@ -80,7 +87,7 @@ public class BoardController {
             model.addAttribute("openStudyLogModal", true);
 
             /* 失敗時は掲示板の表示に必要なデータをModelへ追加する関数を呼び出す. */
-            return renderBoard(communityId, model);
+            return renderBoard(communityId, authentication.getName(), model);
         }
 
         redirectAttributes.addFlashAttribute(
@@ -97,6 +104,7 @@ public class BoardController {
      */
     private String renderBoard(
             Long communityId,
+            String loginId,
             Model model
     ) {
         Community community = communityRepository
@@ -114,6 +122,14 @@ public class BoardController {
                     form
             );
         }
+
+        Account account = accountRepository
+                .findByLoginId(loginId)
+                .orElseThrow(() -> new AccountNotFoundException(
+                        "アカウントが見つかりません。"
+                ));
+        
+        model.addAttribute("role", account.getRole());
 
         model.addAttribute("community", community);
 

@@ -66,7 +66,7 @@ public class StudyLog {
     private int studyMinutes;
 
     /* Getterの定義 */
-    public Long getstudyLogId() {
+    public Long getStudyLogId() {
         return studyLogId;
     }
 
